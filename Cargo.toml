@@ -3,6 +3,14 @@ name = "realworld-axum-api"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "realworld_axum_api"
+path = "src/lib.rs"
+
+[[bin]]
+name = "realworld-axum-api"
+path = "src/main.rs"
+
 [dependencies]
 axum = { version = "0.8", features = ["macros"] }
 tokio = { version = "1.0", features = ["full"] }
@@ -15,3 +23,5 @@ dotenvy = "0.15"
 validator = { version = "0.18", features = ["derive"] }
 bcrypt = "0.15"
 jsonwebtoken = "9.0"
+async-trait = "0.1"
+lettre = { version = "0.11", features = ["tokio1-native-tls", "builder", "hostname"] }
