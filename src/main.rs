@@ -4,18 +4,10 @@ use axum::{
 };
 use std::env;
 
-mod auth;
-mod handlers;
-mod models;
-mod repositories;
-mod schemas;
-mod state;
-
-use handlers::{
-    auth::{current_user, login, register},
-    health::health_check,
+use realworld_axum_api::{
+    handlers::{current_user, health_check, login, register},
+    state::AppState,
 };
-use state::AppState;
 
 #[tokio::main]
 async fn main() {
