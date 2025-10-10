@@ -29,8 +29,18 @@ pub async fn register(
         return Err(StatusCode::CONFLICT);
     }
 
+    if state
+        .user_repository
+        .find_by_username(&payload.user.username)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .is_some()
+    {
+        return Err(StatusCode::CONFLICT);
+    }
+
     let password_hash =
-        hash_password(&payload.user.password).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR);
+        hash_password(&payload.user.password).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let user = state
         .user_repository
@@ -63,7 +73,7 @@ pub async fn login(
         .find_by_email(&payload.user.email)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-        .ok_or(StatusCode::UNAUTHORIZED);
+        .ok_or(StatusCode::UNAUTHORIZED)?;
 
     let password_valid = verify_password(&payload.user.password, &user.password_hash)
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -72,6 +82,20 @@ pub async fn login(
         return Err(StatusCode::UNAUTHORIZED);
     }
 
+    let jwt_secret = std::env::var("JWT_SECRET").map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let token =
+        generate_token(&user.id, &jwt_secret).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let user_data = UserData::from_user_with_token(user, token);
+    let response = UserResponse { user: user_data };
+
+    Ok(Json(response))
+}
+
+pub async fn current_user(
+    RequireAuth(user): RequireAuth,
+) -> Result<Json<UserResponse>, StatusCode> {
     let jwt_secret = std::env::var("JWT_SECRET").map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let token =
