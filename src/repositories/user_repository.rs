@@ -58,11 +58,11 @@ impl UserRepositoryTrait for UserRepository {
     async fn find_by_email(&self, email: &str) -> Result<Option<User>, sqlx::Error> {
         let user = sqlx::query_as::<_, User>(
             r#"
-                SELECT id, username, email, password_hash, bio, image, email_verified,
-                        created_at, updated_at
-                FROM users
-                WHERE email = $1
-                "#,
+            SELECT id, username, email, password_hash, bio, image, email_verified,
+                    created_at, updated_at
+            FROM users
+            WHERE email = $1
+            "#,
         )
         .bind(email)
         .fetch_optional(&self.db)

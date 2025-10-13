@@ -1,4 +1,3 @@
-use crate::models::User;
 use crate::models::{EmailVerificationToken, User};
 use async_trait::async_trait;
 use sqlx::Error as SqlxError;
