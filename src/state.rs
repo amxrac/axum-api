@@ -1,4 +1,7 @@
-use crate::repositories::{UserRepository, UserRepositoryTrait};
+use crate::repositories::{
+    EmailVerificationRepository, EmailVerificationRepositoryTrait, UserRepository,
+    UserRepositoryTrait,
+};
 use axum::extract::FromRef;
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -7,6 +10,7 @@ use std::sync::Arc;
 pub struct AppState {
     pub db: PgPool,
     pub user_repository: Arc<dyn UserRepositoryTrait>,
+    pub email_repository: Arc<dyn EmailVerificationRepositoryTrait>,
 }
 
 impl AppState {
@@ -18,9 +22,13 @@ impl AppState {
         let user_repository: Arc<dyn UserRepositoryTrait> =
             Arc::new(UserRepository::new(db.clone()));
 
+        let email_repository: Arc<dyn EmailVerificationRepositoryTrait> =
+            Arc::new(EmailVerificationRepository::new(db.clone()));
+
         Ok(Self {
             db,
             user_repository,
+            email_repository,
         })
     }
 }
