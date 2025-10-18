@@ -6,8 +6,10 @@ use crate::{
     },
     schemas::auth_schemas::*,
     state::AppState,
+    utils::generate_verification_token,
 };
 use axum::{Json, extract::State, http::StatusCode};
+use chrono::{Duration, Utc};
 use validator::Validate;
 
 pub async fn register(
@@ -47,6 +49,24 @@ pub async fn register(
         .create(&payload.user.username, &payload.user.email, &password_hash)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let verification_token = generate_verification_token();
+    let expires_at = Utc::now() + Duration::hours(24);
+
+    state
+        .email_verification_repository
+        .create_token(user.id, &verification_token, expires_at)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    state
+        .email_service
+        .send_verification_email(&user.email, &user.username, &verification_token)
+        .await
+        .map_err(|e| {
+            eprintln!("Failed to send verification email: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
 
     let jwt_secret = std::env::var("JWT_SECRET").map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
