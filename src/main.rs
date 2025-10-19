@@ -37,6 +37,7 @@ async fn main() {
     println!("  POST /api/users/login   - Login existing user");
     println!("  GET  /api/user          - Get current user (requires auth)");
     println!("  GET  /health            - Health check");
+    println!("  GET /api/auth/verify-email - Verify email");
 
     axum::serve(listener, app).await.unwrap();
 }

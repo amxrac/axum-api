@@ -81,7 +81,7 @@ impl EmailService {
                         <p>If you didn't create an account, please ignore this email.</p>
                     </div>
                     <div class="footer">
-                        <p>© 2024 YourApp. All rights reserved.</p>
+                        <p>© 2024 rlwrld. All rights reserved.</p>
                     </div>
                 </div>
             </body>
