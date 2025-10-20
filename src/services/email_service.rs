@@ -171,7 +171,7 @@ impl EmailService {
             .header(ContentType::TEXT_HTML)
             .body(html_body)?;
 
-        self.mailer.send(&email);
+        self.mailer.send(&email)?;
 
         println!("Password reset email sent to {}", to_email);
         println!("Reset link: {}", reset_link);
