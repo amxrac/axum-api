@@ -69,7 +69,7 @@ impl PasswordResetRepositoryTrait for PasswordResetRepository {
         Ok(())
     }
 
-    async fn delete_all_tokens(&self, user_id: Uuid) -> Result<(), sqlx::Error> {
+    async fn delete_all_user_tokens(&self, user_id: Uuid) -> Result<(), sqlx::Error> {
         sqlx::query(
             r#"
             DELETE FROM password_reset_tokens

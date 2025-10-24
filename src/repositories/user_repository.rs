@@ -25,10 +25,10 @@ impl UserRepositoryTrait for UserRepository {
     ) -> Result<User, sqlx::Error> {
         let user = sqlx::query_as::<_, User>(
             r#"
-                INSERT INTO users (username, email, password_hash)
-                VALUES ($1, $2, $3)
-                RETURNING id, username, email, password_hash, bio, image, email_verified, created_at, updated_at
-                "#,
+            INSERT INTO users (username, email, password_hash)
+            VALUES ($1, $2, $3)
+            RETURNING id, username, email, password_hash, bio, image, email_verified, created_at, updated_at
+            "#,
         )
         .bind(username)
         .bind(email)
@@ -42,11 +42,11 @@ impl UserRepositoryTrait for UserRepository {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, sqlx::Error> {
         let user = sqlx::query_as::<_, User>(
             r#"
-                SELECT id, username, email, password_hash, bio, image, email_verified,
-                    created_at, updated_at
-                FROM users
-                WHERE id = $1
-                "#,
+            SELECT id, username, email, password_hash, bio, image, email_verified,
+                created_at, updated_at
+            FROM users
+            WHERE id = $1
+            "#,
         )
         .bind(id)
         .fetch_optional(&self.db)
@@ -74,11 +74,11 @@ impl UserRepositoryTrait for UserRepository {
     async fn find_by_username(&self, username: &str) -> Result<Option<User>, sqlx::Error> {
         let user = sqlx::query_as::<_, User>(
             r#"
-                SELECT id, username, email, password_hash, bio, image, email_verified,
-                        created_at, updated_at
-                FROM users
-                WHERE username = $1
-                "#,
+            SELECT id, username, email, password_hash, bio, image, email_verified,
+                    created_at, updated_at
+            FROM users
+            WHERE username = $1
+            "#,
         )
         .bind(username)
         .fetch_optional(&self.db)
@@ -97,15 +97,15 @@ impl UserRepositoryTrait for UserRepository {
     ) -> Result<Option<User>, sqlx::Error> {
         let user = sqlx::query_as::<_, User>(
             r#"
-                UPDATE users
-                SET username = COALESCE($2, username),
-                    email = COALESCE($3, email),
-                    bio = COALESCE($4, bio),
-                    image = COALESCE($5, image)
-                WHERE id = $1
-                RETURNING id, username, email, password_hash, bio, image, email_verified,
-                            created_at, updated_at
-                "#,
+            UPDATE users
+            SET username = COALESCE($2, username),
+                email = COALESCE($3, email),
+                bio = COALESCE($4, bio),
+                image = COALESCE($5, image)
+            WHERE id = $1
+            RETURNING id, username, email, password_hash, bio, image, email_verified,
+                        created_at, updated_at
+            "#,
         )
         .bind(id)
         .bind(username)
@@ -116,5 +116,25 @@ impl UserRepositoryTrait for UserRepository {
         .await?;
 
         Ok(user)
+    }
+
+    async fn update_password(
+        &self,
+        user_id: Uuid,
+        new_password_hash: &str,
+    ) -> Result<(), sqlx::Error> {
+        sqlx::query(
+            r#"
+            UPDATE users
+            SET password_hash = $2
+            WHERE id = $1
+            "#,
+        )
+        .bind(user_id)
+        .bind(new_password_hash)
+        .execute(&self.db)
+        .await?;
+
+        Ok(())
     }
 }

@@ -26,6 +26,12 @@ pub trait UserRepositoryTrait: Send + Sync {
         bio: Option<&str>,
         image: Option<&str>,
     ) -> Result<Option<User>, SqlxError>;
+
+    async fn update_password(
+        &self,
+        user_id: Uuid,
+        new_password_hash: &str,
+    ) -> Result<(), SqlxError>;
 }
 
 #[async_trait]
@@ -58,7 +64,7 @@ pub trait PasswordResetRepositoryTrait: Send + Sync {
 
     async fn delete_token(&self, token: &str) -> Result<(), SqlxError>;
 
-    async fn delete_all_tokens(&self, user_id: Uuid) -> Result<(), SqlxError>;
+    async fn delete_all_user_tokens(&self, user_id: Uuid) -> Result<(), SqlxError>;
 
     async fn update_password(
         &self,
